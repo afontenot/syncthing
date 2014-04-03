@@ -1,276 +1,321 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="syncthing">
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="">
-<meta name="author" content="">
-<link rel="shortcut icon" href="favicon.png">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="shortcut icon" href="favicon.png">
 
-<title>syncthing</title>
-<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-<style type="text/css">
+  <title>syncthing</title>
+  <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <style type="text/css">
 
-body {
-    padding-top: 70px;
-    padding-bottom: 70px;
-}
+    body {
+      padding-bottom: 70px;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
 
-.text-monospace {
-    font-family: monospace;
-}
+    h1, h2, h3, h4, h5, h6 {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 300;
+    }
 
-.table-condensed>thead>tr>th, .table-condensed>tbody>tr>th, .table-condensed>tfoot>tr>th, .table-condensed>thead>tr>td, .table-condensed>tbody>tr>td, .table-condensed>tfoot>tr>td {
-    border-top: none;
-}
+    .text-monospace {
+      font-family: monospace;
+    }
 
-thead tr th {
-    text-align: center;
-}
+    .table-condensed>thead>tr>th, .table-condensed>tbody>tr>th, .table-condensed>tfoot>tr>th, .table-condensed>thead>tr>td, .table-condensed>tbody>tr>td, .table-condensed>tfoot>tr>td {
+      border-top: none;
+    }
 
-.logo {
-    margin: 0;
-    padding: 0;
-    top: -5px;
-    position: relative;
-}
+    thead tr th {
+      text-align: center;
+    }
 
-</style>
+    .logo {
+      margin: 0;
+      padding: 0;
+      top: -5px;
+      position: relative;
+    }
+
+    .progress {
+      height: 21px;
+      margin-bottom: inherit;
+    }
+
+    .progress .progress-bar {
+      line-height: 21px;
+      font-size: 12px;
+    }
+
+    .collapsed-visible {
+      display: none;
+    }
+    .collapsed .collapsed-visible {
+      display: inline;
+    }
+
+    .list-no-bullet {
+      list-style-type: none
+    }
+
+    .li-column {
+      display: inline-block;
+      text-align: right;
+      min-width: 7em;
+      margin-right: 1em;
+    }
+    .li-sm-column {
+      display: inline-block;
+      text-align: right;
+      min-width: 4em;
+      margin-right: 1em;
+    }
+
+  </style>
 </head>
 
 <body ng-controller="SyncthingCtrl">
-<div class="navbar navbar-fixed-top navbar-default">
+  <div class="navbar navbar-top navbar-default">
     <div class="container">
-        <a class="navbar-brand"><img class="logo" src="st-logo-128.png" width="32" height="32"> Syncthing</a>
-        <div ng-if="!configInSync">
-            <form class="navbar-form navbar-right">
-                <button type="button" class="btn btn-primary" ng-click="restart()">Restart Now</button>
-            </form>
-            <p class="navbar-text navbar-right">The configuration has been changed but not activated. Syncthing must restart to activate the new configuration.</p>
-        </div>
+      <a class="navbar-brand"><img class="logo" src="st-logo-128.png" width="32" height="32"> Syncthing</a>
     </div>
-</div>
+  </div>
 
-<div class="container">
+
+  <div class="container">
     <div class="row">
-        <div class="col-md-12">
-            <div ng-if="errorList().length > 0" class="alert alert-warning">
-                <p ng-repeat="err in errorList()"><small>{{err.Time | date:"hh:mm:ss.sss"}}:</small> {{friendlyNodes(err.Error)}}</p>
-                    <button type="button" class="pull-right btn btn-warning" ng-click="clearErrors()">OK</button>
+      <div class="col-md-6">
+        <div ng-if="errorList().length > 0" class="alert alert-warning">
+          <p ng-repeat="err in errorList()"><small>{{err.Time | date:"hh:mm:ss.sss"}}:</small> {{friendlyNodes(err.Error)}}</p>
+          <button type="button" class="pull-right btn btn-warning" ng-click="clearErrors()">OK</button>
+          <div class="clearfix"></div>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-heading"><h3 class="panel-title">Nodes</h3></div>
+          <div class="panel-body">
+            <ul class="list-unstyled" ng-repeat="nodeCfg in thisNode()">
+              <li>
+                <span class="text-monospace">{{nodeName(nodeCfg)}}</span>&emsp;
+                <a href="" ng-click="editNode(nodeCfg)"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+                <ul class="list-no-bullet">
+                  <li>
+                    <span class="text-muted glyphicon glyphicon-link"></span>
+                    <div class="li-column">(this node)</div>
+                  </li>
+                  <li>
+                    <span class="text-muted glyphicon glyphicon-tag"></span>
+                    <div class="li-column">{{version}}</div>
+                  </li>
+                  <li>
+                    <span class="text-muted glyphicon glyphicon-cloud-download"></span>
+                    <div class="li-column">{{inbps | metric}}bps</div>
+                  </li>
+                  <li>
+                    <span class="text-muted glyphicon glyphicon-cloud-upload"></span>
+                    <div class="li-column">{{outbps | metric}}bps</div>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+
+            <ul class="list-unstyled" ng-repeat="nodeCfg in otherNodes()">
+              <li>
+                <span class="text-monospace">{{nodeName(nodeCfg)}}</span>&emsp;
+                <a href="" ng-click="editNode(nodeCfg)"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+                <ul class="list-no-bullet">
+                  <li>
+                    <span class="text-muted glyphicon glyphicon-link"></span>
+                    <div class="li-column">{{nodeAddr(nodeCfg)}}</div>
+                  </li>
+                  <li>
+                    <span class="text-muted glyphicon glyphicon-tag"></span>
+                    <div class="li-column">{{nodeVer(nodeCfg)}}</div>
+                  </li>
+                  <li>
+                    <span class="text-muted glyphicon glyphicon-cloud-download"></span>
+                    <div class="li-column">{{connections[nodeCfg.NodeID].inbps | metric}}bps</div>
+                  </li>
+                  <li>
+                    <span class="text-muted glyphicon glyphicon-cloud-upload"></span>
+                    <div class="li-column">{{connections[nodeCfg.NodeID].outbps | metric}}bps</div>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="panel-footer">
+            <button type="button" class="pull-right btn btn-default btn-sm" ng-click="addNode()"><span class="glyphicon glyphicon-plus"></span> Add Node</button>
             <div class="clearfix"></div>
-            </div>
-
-            <div class="panel panel-info">
-                <div class="panel-heading"><h3 class="panel-title">Cluster</h3></div>
-                <table class="table table-condensed">
-                    <tbody>
-                    <!-- myself -->
-                    <tr class="text-muted" ng-repeat="nodeCfg in thisNode()">
-                        <td style="width:12%">
-                            <span class="label label-default">
-                                <span class="glyphicon glyphicon-ok"></span> This node
-                            </span>
-                        </td>
-                        <td style="width:10%">
-                            <span class="text-monospace">{{nodeName(nodeCfg)}}</span>
-                        </td>
-                        <td style="width:20%">{{version}}</td>
-                        <td style="width:25%">(this node)</td>
-                        <td style="width:9%" class="text-right">
-                            {{inbps | metric}}bps
-                            <span class="text-muted glyphicon glyphicon-chevron-down"></span>
-                        </td>
-                        <td style="width:9%" class="text-right">
-                            {{outbps | metric}}bps
-                            <span class="text-muted glyphicon glyphicon-chevron-up"></span>
-                        </td>
-                        <td style="width:7%" class="text-right">
-                            <button type="button" ng-click="editNode(nodeCfg)" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
-                        </td>
-                    </tr>
-                    <!-- all other nodes -->
-                    <tr ng-repeat="nodeCfg in otherNodes()">
-                        <td>
-                            <span class="label label-{{nodeClass(nodeCfg)}}">
-                                <span class="glyphicon glyphicon-{{nodeIcon(nodeCfg)}}"></span> {{nodeStatus(nodeCfg)}}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="text-monospace">{{nodeName(nodeCfg)}}</span>
-                        </td>
-                        <td>{{nodeVer(nodeCfg)}}</td>
-                        <td>{{nodeAddr(nodeCfg)}}</td>
-                        <td class="text-right">
-                            <abbr title="{{connections[nodeCfg.NodeID].InBytesTotal | binary}}B">{{connections[nodeCfg.NodeID].inbps | metric}}bps</abbr>
-                            <span class="text-muted glyphicon glyphicon-chevron-down"></span>
-                        </td>
-                        <td class="text-right">
-                            <abbr title="{{connections[nodeCfg.NodeID].OutBytesTotal | binary}}B">{{connections[nodeCfg.NodeID].outbps | metric}}bps</abbr>
-                            <span class="text-muted glyphicon glyphicon-chevron-up"></span>
-                        </td>
-                        <td class="text-right">
-                            <button type="button" ng-click="editNode(nodeCfg)" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="text-right">
-                            <button type="button" class="btn btn-default btn-xs" ng-click="addNode()"><span class="glyphicon glyphicon-plus"></span> Add</button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+          </div>
         </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading"><h3 class="panel-title">Repositories</h3></div>
+          <div class="panel-body">
+            <ul class="list-unstyled">
+              <li><span class="text-monospace">~/Sync</span> (default)
+                <ul class="list-no-bullet">
+                  <li>
+                    <div class="progress" style="display: inline-block; width: 100%">
+                      <div class="progress-bar" role="progressbar" ng-class="{'progress-bar-success': model.needBytes === 0, 'progress-bar-info': model.needBytes !== 0}" ng-style="{width: (100 * model.inSyncBytes / model.globalBytes) + '%'}">
+                        {{100 * model.inSyncBytes / model.globalBytes | alwaysNumber | number:0}}%
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <span class="text-muted glyphicon glyphicon-globe"></span>
+                    {{model.globalFiles | alwaysNumber}} files, {{model.globalBytes | binary}}B
+                  </li>
+                  <li>
+                    <span class="text-muted glyphicon glyphicon-home"></span>
+                    {{model.localFiles | alwaysNumber}} files, {{model.localBytes | binary}}B
+                  </li>
+                  <li ng-show="model.needBytes > 0">Need {{model.needFiles | alwaysNumber}} files, {{model.needBytes | binary}}B
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="panel-footer">
+            <button type="button" class="pull-right btn btn-default btn-sm" ng-click="addRepo()"><span class="glyphicon glyphicon-plus"></span> Add Repository</button>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="row">
-        <div class="col-md-6">
-            <div class="panel panel-info">
-                <div class="panel-heading"><h3 class="panel-title">Repository</h3></div>
-                <div class="panel-body">
-                    <p>Cluster contains {{model.globalFiles | alwaysNumber}} files, {{model.globalBytes | binary}}B
-                    <span class="text-muted">(+{{model.globalDeleted | alwaysNumber}} delete records)</span></p>
-
-                    <p>Local repository has {{model.localFiles | alwaysNumber}} files, {{model.localBytes | binary}}B
-                    <span class="text-muted">(+{{model.localDeleted | alwaysNumber}} delete records)</span></p>
-                </div>
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading"><h3 class="panel-title"><a href="" data-toggle="collapse" data-target="#system" class="collapsed">
+            System <span class="collapsed-visible"><span class="caret"></span></span>
+          </a></h3></div>
+          <div id="system" class="panel-collapse collapse">
+            <div class="panel-body">
+              <p>{{system.sys | binary}}B RAM allocated, {{system.alloc | binary}}B in use</p>
+              <p>{{system.cpuPercent | alwaysNumber | natural:1}}% CPU, {{system.goroutines | alwaysNumber}} goroutines</p>
             </div>
+          </div>
         </div>
-        <div class="col-md-6">
-            <div class="panel" ng-class="{'panel-success': model.needBytes === 0, 'panel-primary': model.needBytes !== 0}">
-                <div class="panel-heading"><h3 class="panel-title">Synchronization</h3></div>
-                <div class="panel-body">
-                    <div class="progress">
-                        <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
-                            ng-class="{'progress-bar-success': model.needBytes === 0, 'progress-bar-info': model.needBytes !== 0}"
-                            ng-style="{width: (100 * model.inSyncBytes / model.globalBytes) + '%'}">
-                            {{100 * model.inSyncBytes / model.globalBytes | alwaysNumber | number:0}}%
-                        </div>
-                    </div>
-                    <p ng-show="model.needBytes > 0">Need {{model.needFiles | alwaysNumber}} files, {{model.needBytes | binary}}B</p>
+      </div>
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading"><h3 class="panel-title"><a href="" data-toggle="collapse" data-target="#settingsTable" class="collapsed">
+            Settings <span class="collapsed-visible"><span class="caret"></span></span>
+          </a></h3></div>
+          <div id="settingsTable" class="panel-collapse collapse">
+            <div class="panel-body">
+              <form role="form">
+                <div class="form-group" ng-repeat="setting in settings">
+                  <div ng-if="setting.type == 'text' || setting.type == 'number'">
+                    <label for="{{setting.id}}">{{setting.descr}}</label>
+                    <input id="{{setting.id}}" class="form-control" type="{{setting.type}}" ng-model="config.Options[setting.id]"></input>
+                  </div>
+                  <div class="checkbox" ng-if="setting.type == 'bool'">
+                    <label>
+                      {{setting.descr}} <input id="{{setting.id}}" type="checkbox" ng-model="config.Options[setting.id]"></input>
+                    </label>
+                  </div>
                 </div>
+              </form>
             </div>
+          <div class="panel-footer">
+                <button type="button" class="btn btn-default btn-sm pull-right" ng-click="saveSettings()"><span class="glyphicon glyphicon-save"></span> Save</button>
+            <div class="clearfix"></div>
+          </div>
+          </div>
         </div>
+        <div ng-if="!configInSync" class="panel panel-warning">
+          <div class="panel-heading"><h3 class="panel-title">Restart Needed</h3></div>
+          <div class="panel-body">
+            <p>The configuration has been saved but not activated. Syncthing must restart to activate the new configuration.</p>
+          </div>
+          <div class="panel-footer">
+            <button type="button" class="btn btn-default btn-sm pull-right" ng-click="restart()"><span class="glyphicon glyphicon-off"></span> Restart Now</button>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <div class="panel panel-info">
-                <div class="panel-heading"><h3 class="panel-title"><a href="" data-toggle="collapse" data-target="#system">System</a></h3></div>
-                <div id="system" class="panel-collapse collapse">
-                    <div class="panel-body">
-                        <p>{{system.sys | binary}}B RAM allocated, {{system.alloc | binary}}B in use</p>
-                        <p>{{system.cpuPercent | alwaysNumber | natural:1}}% CPU, {{system.goroutines | alwaysNumber}} goroutines</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="panel panel-info">
-                <div class="panel-heading"><h3 class="panel-title"><a href="" data-toggle="collapse" data-target="#settingsTable">Settings</a></h3></div>
-                <div id="settingsTable" class="panel-collapse collapse">
-                    <div class="panel-body">
-                        <form role="form">
-                            <div class="form-group" ng-repeat="setting in settings">
-                                <div ng-if="setting.type == 'text' || setting.type == 'number'">
-                                    <label for="{{setting.id}}">{{setting.descr}}</label>
-                                    <input id="{{setting.id}}" class="form-control" type="{{setting.type}}" ng-model="config.Options[setting.id]"></input>
-                                </div>
-                                <div class="checkbox" ng-if="setting.type == 'bool'">
-                                    <label>
-                                        {{setting.descr}} <input id="{{setting.id}}" type="checkbox" ng-model="config.Options[setting.id]"></input>
-                                    </label>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="panel-footer">
-                        <button type="button" class="btn btn-sm btn-default" ng-click="saveSettings()">Save</button>
-                        <small><span class="text-muted">Changes take effect when restarting syncthing.</span></small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="navbar navbar-default navbar-fixed-bottom">
+  <div class="navbar navbar-default navbar-fixed-bottom hidden-xs">
     <div class="container">
-        <p class="navbar-text">{{version}}</p>
-        <ul class="nav navbar-nav navbar-right">
-            <li><a class="navbar-link" href="http://discourse.syncthing.net/">Support / Forum</a></li>
-            <li><a class="navbar-link" href="https://github.com/calmh/syncthing/releases">Latest Release</a></li>
-            <li><a class="navbar-link" href="https://github.com/calmh/syncthing/wiki">Documentation</a></li>
-            <li><a class="navbar-link" href="https://github.com/calmh/syncthing/issues">Bugs</a></li>
-            <li><a class="navbar-link" href="https://github.com/calmh/syncthing">Source Code</a></li>
-        </ul>
-        </p>
-    </div>
+      <p class="navbar-text">{{version}}</p>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a class="navbar-link" href="http://discourse.syncthing.net/">Support / Forum</a></li>
+        <li><a class="navbar-link" href="https://github.com/calmh/syncthing/releases">Latest Release</a></li>
+        <li><a class="navbar-link" href="https://github.com/calmh/syncthing/wiki">Documentation</a></li>
+        <li><a class="navbar-link" href="https://github.com/calmh/syncthing/issues">Bugs</a></li>
+        <li><a class="navbar-link" href="https://github.com/calmh/syncthing">Source Code</a></li>
+      </ul>
+    </p>
+  </div>
 </div>
 
 <div id="networkError" class="modal fade">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header alert alert-danger">
-                <h4 class="modal-title">
-                    <span class="glyphicon glyphicon-exclamation-sign"></span>
-                    Connection Error
-                </h4>
-            </div>
-            <div class="modal-body">
-                <p>
-                Syncthing seems to be down, or there is a problem with your Internet connection.
-                Retrying&hellip;
-                </p>
-            </div>
-        </div>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header alert alert-danger">
+        <h4 class="modal-title">
+          <span class="glyphicon glyphicon-exclamation-sign"></span>
+          Connection Error
+        </h4>
+      </div>
+      <div class="modal-body">
+        <p>
+          Syncthing seems to be down, or there is a problem with your Internet connection.
+          Retrying&hellip;
+        </p>
+      </div>
     </div>
+  </div>
 </div>
 
 <div id="editNode" class="modal fade">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Edit Node</h4>
-            </div>
-            <div class="modal-body">
-                <form role="form">
-                    <div class="form-group">
-                        <label for="nodeID">Node ID</label>
-                        <input placeholder="YUFJOUDPORCMA..." ng-disabled="editingExisting" id="nodeID" class="form-control" type="text" ng-model="currentNode.NodeID"></input>
-                        <p class="help-block">The node ID can be found in the logs or in the "Add Node" dialog on the other node.</p>
-                    </div>
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input placeholder="Home Server" id="name" class="form-control" type="text" ng-model="currentNode.Name"></input>
-                        <p class="help-block">Shown instead of Node ID in the cluster status.</p>
-                    </div>
-                    <div class="form-group">
-                        <label for="addresses">Addresses</label>
-                        <input placeholder="dynamic" ng-disabled="currentNode.NodeID == myID" id="addresses" class="form-control" type="text" ng-model="currentNode.AddressesStr"></input>
-                        <p class="help-block">Enter comma separated <span class="text-monospace">ip:port</span> addresses or <span class="text-monospace">dynamic</span> to perform automatic discovery of the address.</p>
-                    </div>
-                </form>
-                <div ng-show="!editingExisting">
-                    When adding a new node, keep in mind that <em>this node</em> must be added on the other side too. The Node ID of this node is:
-                    <pre>{{myID}}</pre>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" ng-click="saveNode()">Save</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button ng-if="editingExisting" type="button" class="btn btn-danger pull-left" ng-click="deleteNode()">Delete</button>
-            </div>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Edit Node</h4>
+      </div>
+      <div class="modal-body">
+        <form role="form">
+          <div class="form-group">
+            <label for="nodeID">Node ID</label>
+            <input placeholder="YUFJOUDPORCMA..." ng-disabled="editingExisting" id="nodeID" class="form-control" type="text" ng-model="currentNode.NodeID"></input>
+            <p class="help-block">The node ID can be found in the logs or in the "Add Node" dialog on the other node.</p>
+          </div>
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input placeholder="Home Server" id="name" class="form-control" type="text" ng-model="currentNode.Name"></input>
+            <p class="help-block">Shown instead of Node ID in the cluster status.</p>
+          </div>
+          <div class="form-group">
+            <label for="addresses">Addresses</label>
+            <input placeholder="dynamic" ng-disabled="currentNode.NodeID == myID" id="addresses" class="form-control" type="text" ng-model="currentNode.AddressesStr"></input>
+            <p class="help-block">Enter comma separated <span class="text-monospace">ip:port</span> addresses or <span class="text-monospace">dynamic</span> to perform automatic discovery of the address.</p>
+          </div>
+        </form>
+        <div ng-show="!editingExisting">
+          When adding a new node, keep in mind that <em>this node</em> must be added on the other side too. The Node ID of this node is:
+          <pre>{{myID}}</pre>
         </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" ng-click="saveNode()">Save</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button ng-if="editingExisting" type="button" class="btn btn-danger pull-left" ng-click="deleteNode()">Delete</button>
+      </div>
     </div>
+  </div>
 </div>
 
 <script src="angular.min.js"></script>

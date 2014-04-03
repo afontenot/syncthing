@@ -182,7 +182,7 @@ syncthing.controller('SyncthingCtrl', function ($scope, $http) {
         if (conn) {
             return conn.Address;
         }
-        return '(unknown address)';
+        return '?';
     };
 
     $scope.nodeCompletion = function (nodeCfg) {
@@ -201,7 +201,7 @@ syncthing.controller('SyncthingCtrl', function ($scope, $http) {
         if (conn) {
             return conn.ClientVersion;
         }
-        return '(unknown version)';
+        return '?';
     };
 
     $scope.nodeName = function (nodeCfg) {
