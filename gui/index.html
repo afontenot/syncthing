@@ -99,6 +99,47 @@
   <div class="container">
     <div class="row">
       <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading"><h3 class="panel-title">Repositories</h3></div>
+          <div class="panel-body">
+            <ul class="list-unstyled">
+              <li>
+                <span class="text-monospace">~/Sync</span> (default)
+                <a href="" ng-click="editNode(nodeCfg)" class="text-info"><span class="glyphicon glyphicon-pencil"></span></a>
+                <ul class="list-no-bullet">
+                  <li>
+                    <div class="progress" style="display: inline-block; width: 100%">
+                      <div class="progress-bar progress-bar-success" ng-style="{width: (100 * model.inSyncBytes / model.globalBytes) + '%'}">
+                        {{100 * model.inSyncBytes / model.globalBytes | alwaysNumber | number:0}}%
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="li-column">
+                      <span class="text-muted glyphicon glyphicon-globe"></span>
+                      <span class="data">{{model.globalFiles | alwaysNumber}} files, {{model.globalBytes | binary}}B</span>
+                    </div>
+                    <div class="li-column">
+                      <span class="text-muted glyphicon glyphicon-home"></span>
+                      <span class="data">{{model.localFiles | alwaysNumber}} files, {{model.localBytes | binary}}B</span>
+                    </div>
+                    <div class="li-column">
+                      <span class="text-muted glyphicon glyphicon-cloud-download"></span>
+                      <span class="data">{{model.needFiles | alwaysNumber}} files, {{model.needBytes | binary}}B</span>
+                    </div>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="panel-footer">
+            <button type="button" class="pull-right btn btn-sm btn-default" ng-click="addRepo()"><span class="glyphicon glyphicon-plus"></span> Add Repository</button>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
         <div ng-if="errorList().length > 0" class="alert alert-warning">
           <p ng-repeat="err in errorList()"><small>{{err.Time | date:"hh:mm:ss.sss"}}:</small> {{friendlyNodes(err.Error)}}</p>
           <button type="button" class="pull-right btn btn-warning" ng-click="clearErrors()">OK</button>
@@ -111,26 +152,26 @@
             <ul class="list-unstyled" ng-repeat="nodeCfg in thisNode()">
               <li>
                 <span class="text-monospace">{{nodeName(nodeCfg)}}</span>&emsp;
-                <a href="" ng-click="editNode(nodeCfg)"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+                <a href="" ng-click="editNode(nodeCfg)"><span class="glyphicon glyphicon-pencil"></span></a>
                 <ul class="list-no-bullet">
                   <li>
                     <div class="li-column">
-                    <span class="text-muted glyphicon glyphicon-link"></span>
-                    <span class="data">(this node)</span>
+                      <span class="text-muted glyphicon glyphicon-link"></span>
+                      <span class="data">(this node)</span>
                     </div>
                     <div class="li-column">
-                    <span class="text-muted glyphicon glyphicon-tag"></span>
-                    <span class="data">{{version}}</span>
+                      <span class="text-muted glyphicon glyphicon-tag"></span>
+                      <span class="data">{{version}}</span>
                     </div>
                   </li>
                   <li>
                     <div class="li-column">
-                    <span class="text-muted glyphicon glyphicon-cloud-download"></span>
-                    <span class="data">{{inbps | metric}}bps</span>
+                      <span class="text-muted glyphicon glyphicon-cloud-download"></span>
+                      <span class="data">{{inbps | metric}}bps</span>
                     </div>
                     <div class="li-column">
-                    <span class="text-muted glyphicon glyphicon-cloud-upload"></span>
-                    <span class="data">{{outbps | metric}}bps</span>
+                      <span class="text-muted glyphicon glyphicon-cloud-upload"></span>
+                      <span class="data">{{outbps | metric}}bps</span>
                     </div>
                   </li>
                 </ul>
@@ -140,27 +181,27 @@
             <ul class="list-unstyled" ng-repeat="nodeCfg in otherNodes()">
               <li>
                 <span class="text-monospace">{{nodeName(nodeCfg)}}</span>&emsp;
-                <a href="" ng-click="editNode(nodeCfg)"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+                <a href="" ng-click="editNode(nodeCfg)"><span class="glyphicon glyphicon-pencil"></span></a>
                 <ul class="list-no-bullet">
                   <li>
                     <div class="li-column">
-                    <span class="text-muted glyphicon glyphicon-link"></span>
-                    <span class="data">{{nodeAddr(nodeCfg)}}</span>
+                      <span class="text-muted glyphicon glyphicon-link"></span>
+                      <span class="data">{{nodeAddr(nodeCfg)}}</span>
                     </div>
                     <div class="li-column">
-                    <span class="text-muted glyphicon glyphicon-tag"></span>
-                    <span class="data">{{nodeVer(nodeCfg)}}</span>
+                      <span class="text-muted glyphicon glyphicon-tag"></span>
+                      <span class="data">{{nodeVer(nodeCfg)}}</span>
                     </div>
                   </li>
                   <li>
                     <div class="li-column">
-                    <span class="text-muted glyphicon glyphicon-cloud-download"></span>
-                    <span class="data">{{connections[nodeCfg.NodeID].inbps | metric}}bps</span>
+                      <span class="text-muted glyphicon glyphicon-cloud-download"></span>
+                      <span class="data">{{connections[nodeCfg.NodeID].inbps | metric}}bps</span>
                     </div>
 
                     <div class="li-column">
-                    <span class="text-muted glyphicon glyphicon-cloud-upload"></span>
-                    <span class="data">{{connections[nodeCfg.NodeID].outbps | metric}}bps</span>
+                      <span class="text-muted glyphicon glyphicon-cloud-upload"></span>
+                      <span class="data">{{connections[nodeCfg.NodeID].outbps | metric}}bps</span>
                     </div>
                   </li>
                 </ul>
@@ -168,46 +209,7 @@
             </ul>
           </div>
           <div class="panel-footer">
-            <button type="button" class="pull-right btn btn-default btn-sm" ng-click="addNode()"><span class="glyphicon glyphicon-plus"></span> Add Node</button>
-            <div class="clearfix"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6">
-        <div class="panel panel-default">
-          <div class="panel-heading"><h3 class="panel-title">Repositories</h3></div>
-          <div class="panel-body">
-            <ul class="list-unstyled">
-              <li><span class="text-monospace">~/Sync</span> (default)
-                <ul class="list-no-bullet">
-                  <li>
-                    <div class="progress" style="display: inline-block; width: 100%">
-                      <div class="progress-bar" role="progressbar" ng-class="{'progress-bar-success': model.needBytes === 0, 'progress-bar-info': model.needBytes !== 0}" ng-style="{width: (100 * model.inSyncBytes / model.globalBytes) + '%'}">
-                        {{100 * model.inSyncBytes / model.globalBytes | alwaysNumber | number:0}}%
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                  <div class="li-column">
-                    <span class="text-muted glyphicon glyphicon-globe"></span>
-                    <span class="data">{{model.globalFiles | alwaysNumber}} files, {{model.globalBytes | binary}}B</span>
-                    </div>
-                  <div class="li-column">
-                    <span class="text-muted glyphicon glyphicon-home"></span>
-                    <span class="data">{{model.localFiles | alwaysNumber}} files, {{model.localBytes | binary}}B</span>
-                    </div>
-                  <div class="li-column">
-                    <span class="text-muted glyphicon glyphicon-cloud-download"></span>
-                    <span class="data">{{model.needFiles | alwaysNumber}} files, {{model.needBytes | binary}}B</span>
-                    </div>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </div>
-          <div class="panel-footer">
-            <button type="button" class="pull-right btn btn-default btn-sm" ng-click="addRepo()"><span class="glyphicon glyphicon-plus"></span> Add Repository</button>
+            <button type="button" class="pull-right btn btn-sm btn-default" ng-click="addNode()"><span class="glyphicon glyphicon-plus"></span> Add Node</button>
             <div class="clearfix"></div>
           </div>
         </div>
@@ -249,10 +251,10 @@
                 </div>
               </form>
             </div>
-          <div class="panel-footer">
-                <button type="button" class="btn btn-default btn-sm pull-right" ng-click="saveSettings()"><span class="glyphicon glyphicon-save"></span> Save</button>
-            <div class="clearfix"></div>
-          </div>
+            <div class="panel-footer">
+            <button type="button" class="btn btn-sm btn-default pull-right" ng-click="saveSettings()"><span class="glyphicon glyphicon-save"></span> Save</button>
+              <div class="clearfix"></div>
+            </div>
           </div>
         </div>
         <div ng-if="!configInSync" class="panel panel-warning">
@@ -261,7 +263,7 @@
             <p>The configuration has been saved but not activated. Syncthing must restart to activate the new configuration.</p>
           </div>
           <div class="panel-footer">
-            <button type="button" class="btn btn-default btn-sm pull-right" ng-click="restart()"><span class="glyphicon glyphicon-off"></span> Restart Now</button>
+            <button type="button" class="btn btn-sm btn-default pull-right" ng-click="restart()"><span class="glyphicon glyphicon-off"></span> Restart Now</button>
             <div class="clearfix"></div>
           </div>
         </div>
@@ -307,13 +309,14 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title">Edit Node</h4>
+        <h4 ng-show="!editingExisting" class="modal-title">Add Node</h4>
+        <h4 ng-show="editingExisting" class="modal-title">Edit Node</h4>
       </div>
       <div class="modal-body">
         <form role="form">
           <div class="form-group">
             <label for="nodeID">Node ID</label>
-            <input placeholder="YUFJOUDPORCMA..." ng-disabled="editingExisting" id="nodeID" class="form-control" type="text" ng-model="currentNode.NodeID"></input>
+            <input ng-disabled="editingExisting" id="nodeID" class="form-control" type="text" ng-model="currentNode.NodeID"></input>
             <p class="help-block">The node ID can be found in the logs or in the "Add Node" dialog on the other node.</p>
           </div>
           <div class="form-group">
@@ -330,6 +333,43 @@
         <div ng-show="!editingExisting">
           When adding a new node, keep in mind that <em>this node</em> must be added on the other side too. The Node ID of this node is:
           <pre>{{myID}}</pre>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" ng-click="saveNode()">Save</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button ng-if="editingExisting" type="button" class="btn btn-danger pull-left" ng-click="deleteNode()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="editRepo" class="modal fade">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 ng-show="!editingExisting" class="modal-title">Add Repository</h4>
+        <h4 ng-show="editingExisting" class="modal-title">Edit Repository</h4>
+      </div>
+      <div class="modal-body">
+        <form role="form">
+          <div class="form-group">
+            <label for="repoPath">Repository Path</label>
+            <input placeholder="~/Documents" ng-disabled="editingExisting" id="repoPath" class="form-control" type="text" ng-model="currentRepo.Path"></input>
+            <p class="help-block">Path to the repository on the local computer. Will be created if it does not exist.</p>
+          </div>
+          <div class="form-group">
+            <label for="repoID">Repository ID</label>
+            <input placeholder="documents" id="repoID" class="form-control" type="text" ng-model="currentRepo.ID"></input>
+            <p class="help-block">Short, unique identifier for the repository. Must be the same on all cluster nodes.</p>
+          </div>
+          <div class="form-group">
+            <label for="nodes">Nodes</label>
+          </div>
+        </form>
+        <div ng-show="!editingExisting">
+          When adding a new repository, keep in mind that the Repository ID is used to repositories together between nodes. They are case sensitive and must match exactly between all nodes.
         </div>
       </div>
       <div class="modal-footer">

@@ -224,16 +224,16 @@ syncthing.controller('SyncthingCtrl', function ($scope, $http) {
     };
 
     $scope.editNode = function (nodeCfg) {
-        $scope.currentNode = nodeCfg;
+        $scope.currentNode = $.extend({}, nodeCfg);
         $scope.editingExisting = true;
         $scope.currentNode.AddressesStr = nodeCfg.Addresses.join(', ');
-        $('#editNode').modal({backdrop: 'static', keyboard: false});
+        $('#editNode').modal({backdrop: 'static', keyboard: true});
     };
 
     $scope.addNode = function () {
         $scope.currentNode = {NodeID: '', AddressesStr: 'dynamic'};
         $scope.editingExisting = false;
-        $('#editNode').modal({backdrop: 'static', keyboard: false});
+        $('#editNode').modal({backdrop: 'static', keyboard: true});
     };
 
     $scope.deleteNode = function () {
