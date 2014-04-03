@@ -64,10 +64,20 @@
 
     .li-column {
       display: inline-block;
-      text-align: right;
       min-width: 7em;
       margin-right: 1em;
+      background-color: rgb(236, 240, 241);
+      border-radius: 3px;
+      padding: 1px 4px;
+      margin: 2px 2px;
     }
+    .li-column span.data {
+      margin-left: 0.5em;
+      min-width: 8em;
+      text-align: right;
+      display: inline-block;
+    }
+
     .li-sm-column {
       display: inline-block;
       text-align: right;
@@ -104,20 +114,24 @@
                 <a href="" ng-click="editNode(nodeCfg)"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
                 <ul class="list-no-bullet">
                   <li>
+                    <div class="li-column">
                     <span class="text-muted glyphicon glyphicon-link"></span>
-                    <div class="li-column">(this node)</div>
-                  </li>
-                  <li>
+                    <span class="data">(this node)</span>
+                    </div>
+                    <div class="li-column">
                     <span class="text-muted glyphicon glyphicon-tag"></span>
-                    <div class="li-column">{{version}}</div>
+                    <span class="data">{{version}}</span>
+                    </div>
                   </li>
                   <li>
+                    <div class="li-column">
                     <span class="text-muted glyphicon glyphicon-cloud-download"></span>
-                    <div class="li-column">{{inbps | metric}}bps</div>
-                  </li>
-                  <li>
+                    <span class="data">{{inbps | metric}}bps</span>
+                    </div>
+                    <div class="li-column">
                     <span class="text-muted glyphicon glyphicon-cloud-upload"></span>
-                    <div class="li-column">{{outbps | metric}}bps</div>
+                    <span class="data">{{outbps | metric}}bps</span>
+                    </div>
                   </li>
                 </ul>
               </li>
@@ -129,20 +143,25 @@
                 <a href="" ng-click="editNode(nodeCfg)"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
                 <ul class="list-no-bullet">
                   <li>
+                    <div class="li-column">
                     <span class="text-muted glyphicon glyphicon-link"></span>
-                    <div class="li-column">{{nodeAddr(nodeCfg)}}</div>
-                  </li>
-                  <li>
+                    <span class="data">{{nodeAddr(nodeCfg)}}</span>
+                    </div>
+                    <div class="li-column">
                     <span class="text-muted glyphicon glyphicon-tag"></span>
-                    <div class="li-column">{{nodeVer(nodeCfg)}}</div>
+                    <span class="data">{{nodeVer(nodeCfg)}}</span>
+                    </div>
                   </li>
                   <li>
+                    <div class="li-column">
                     <span class="text-muted glyphicon glyphicon-cloud-download"></span>
-                    <div class="li-column">{{connections[nodeCfg.NodeID].inbps | metric}}bps</div>
-                  </li>
-                  <li>
+                    <span class="data">{{connections[nodeCfg.NodeID].inbps | metric}}bps</span>
+                    </div>
+
+                    <div class="li-column">
                     <span class="text-muted glyphicon glyphicon-cloud-upload"></span>
-                    <div class="li-column">{{connections[nodeCfg.NodeID].outbps | metric}}bps</div>
+                    <span class="data">{{connections[nodeCfg.NodeID].outbps | metric}}bps</span>
+                    </div>
                   </li>
                 </ul>
               </li>
@@ -170,14 +189,18 @@
                     </div>
                   </li>
                   <li>
+                  <div class="li-column">
                     <span class="text-muted glyphicon glyphicon-globe"></span>
-                    {{model.globalFiles | alwaysNumber}} files, {{model.globalBytes | binary}}B
-                  </li>
-                  <li>
+                    <span class="data">{{model.globalFiles | alwaysNumber}} files, {{model.globalBytes | binary}}B</span>
+                    </div>
+                  <div class="li-column">
                     <span class="text-muted glyphicon glyphicon-home"></span>
-                    {{model.localFiles | alwaysNumber}} files, {{model.localBytes | binary}}B
-                  </li>
-                  <li ng-show="model.needBytes > 0">Need {{model.needFiles | alwaysNumber}} files, {{model.needBytes | binary}}B
+                    <span class="data">{{model.localFiles | alwaysNumber}} files, {{model.localBytes | binary}}B</span>
+                    </div>
+                  <div class="li-column">
+                    <span class="text-muted glyphicon glyphicon-cloud-download"></span>
+                    <span class="data">{{model.needFiles | alwaysNumber}} files, {{model.needBytes | binary}}B</span>
+                    </div>
                   </li>
                 </ul>
               </li>
