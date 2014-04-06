@@ -138,6 +138,18 @@ syncthing.controller('SyncthingCtrl', function ($scope, $http) {
         });
     };
 
+    $scope.syncPercentage = function (repo) {
+        if (typeof model === 'undefined') {
+            return 100;
+        }
+        if (model.globalBytes === 0) {
+            return 100;
+        }
+
+        var pct = 100 * model.inSyncBytes / model.globalBytes;
+        return math.Ceil(pct);
+    };
+
     $scope.nodeStatus = function (nodeCfg) {
         var conn = $scope.connections[nodeCfg.NodeID];
         if (conn) {

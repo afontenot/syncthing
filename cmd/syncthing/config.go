@@ -14,14 +14,16 @@ import (
 type Configuration struct {
 	Version      int                       `xml:"version,attr" default:"1"`
 	Repositories []RepositoryConfiguration `xml:"repository"`
+	Nodes        []NodeConfiguration       `xml:"node"`
 	Options      OptionsConfiguration      `xml:"options"`
 	XMLName      xml.Name                  `xml:"configuration" json:"-"`
 }
 
 type RepositoryConfiguration struct {
-	ID        string              `xml:"id,attr"`
-	Directory string              `xml:"directory,attr"`
-	Nodes     []NodeConfiguration `xml:"node"`
+	ID        string   `xml:"id,attr"`
+	Directory string   `xml:"directory,attr"`
+	ReadOnly  bool     `xml:"ro,attr"`
+	Nodes     []string `xml:"node"`
 }
 
 type NodeConfiguration struct {
@@ -32,7 +34,6 @@ type NodeConfiguration struct {
 
 type OptionsConfiguration struct {
 	ListenAddress      []string `xml:"listenAddress" default:":22000" ini:"listen-address"`
-	ReadOnly           bool     `xml:"readOnly" ini:"read-only"`
 	FollowSymlinks     bool     `xml:"followSymlinks" default:"true" ini:"follow-symlinks"`
 	GUIEnabled         bool     `xml:"guiEnabled" default:"true" ini:"gui-enabled"`
 	GUIAddress         string   `xml:"guiAddress" default:"127.0.0.1:8080" ini:"gui-address"`

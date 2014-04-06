@@ -109,8 +109,8 @@
                 <ul class="list-no-bullet">
                   <li>
                     <div class="progress" style="display: inline-block; width: 100%">
-                      <div class="progress-bar progress-bar-success" ng-style="{width: (100 * model.inSyncBytes / model.globalBytes) + '%'}">
-                        {{100 * model.inSyncBytes / model.globalBytes | alwaysNumber | number:0}}%
+                      <div class="progress-bar progress-bar-success" ng-style="{width: syncPercentage() + '%'}">
+                        {{syncPercentage()}}%
                       </div>
                     </div>
                   </li>
