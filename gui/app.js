@@ -27,8 +27,6 @@ syncthing.controller('SyncthingCtrl', function ($scope, $http) {
         {id: 'ParallelRequests', descr: 'Max Outstanding Requests', type: 'number', restart: true},
         {id: 'MaxChangeKbps', descr: 'Max File Change Rate (KBps)', type: 'number', restart: true},
 
-        {id: 'ReadOnly', descr: 'Read Only', type: 'bool', restart: true},
-        {id: 'FollowSymlinks', descr: 'Follow Symlinks', type: 'bool', restart: true},
         {id: 'GlobalAnnEnabled', descr: 'Global Announce', type: 'bool', restart: true},
         {id: 'LocalAnnEnabled', descr: 'Local Announce', type: 'bool', restart: true},
         {id: 'StartBrowser', descr: 'Start Browser', type: 'bool'},
@@ -72,9 +70,11 @@ syncthing.controller('SyncthingCtrl', function ($scope, $http) {
             $scope.config = data;
             $scope.config.Options.ListenStr = $scope.config.Options.ListenAddress.join(', ');
 
-            var nodes = $scope.config.Repositories[0].Nodes;
+            var nodes = $scope.config.Nodes;
             nodes.sort(nodeCompare);
             $scope.nodes = nodes;
+
+            $scope.repos = $scope.config.Repositories;
         });
         $http.get('/rest/config/sync').success(function (data) {
             $scope.configInSync = data.configInSync;
@@ -243,7 +243,7 @@ syncthing.controller('SyncthingCtrl', function ($scope, $http) {
     };
 
     $scope.addNode = function () {
-        $scope.currentNode = {NodeID: '', AddressesStr: 'dynamic'};
+        $scope.currentNode = {AddressesStr: 'dynamic'};
         $scope.editingExisting = false;
         $('#editNode').modal({backdrop: 'static', keyboard: true});
     };
@@ -263,7 +263,7 @@ syncthing.controller('SyncthingCtrl', function ($scope, $http) {
         }
 
         $scope.nodes = newNodes;
-        $scope.config.Repositories[0].Nodes = newNodes;
+        $scope.config.Nodes = $scope.nodes;
 
         $scope.configInSync = false;
         $http.post('/rest/config', JSON.stringify($scope.config), {headers: {'Content-Type': 'application/json'}});
@@ -291,7 +291,7 @@ syncthing.controller('SyncthingCtrl', function ($scope, $http) {
         }
 
         $scope.nodes.sort(nodeCompare);
-        $scope.config.Repositories[0].Nodes = $scope.nodes;
+        $scope.config.Nodes = $scope.nodes;
 
         $http.post('/rest/config', JSON.stringify($scope.config), {headers: {'Content-Type': 'application/json'}});
     };
