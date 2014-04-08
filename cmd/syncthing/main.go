@@ -17,7 +17,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/calmh/ini"
 	"github.com/calmh/syncthing/discover"
 	"github.com/calmh/syncthing/protocol"
 	"github.com/juju/ratelimit"
@@ -59,8 +58,10 @@ const (
 )
 
 func main() {
+	var reset bool
 	var showVersion bool
 	flag.StringVar(&confDir, "home", getDefaultConfDir(), "Set configuration directory")
+	flag.BoolVar(&reset, "reset", false, "Prepare to resync from cluster")
 	flag.BoolVar(&showVersion, "version", false, "Show version")
 	flag.Usage = usageFor(flag.CommandLine, usage, extraUsage)
 	flag.Parse()
@@ -118,31 +119,6 @@ func main() {
 			fatalln(err)
 		}
 		cf.Close()
-	} else {
-		// No config.xml, let's try the old syncthing.ini
-		iniFile := filepath.Join(confDir, "syncthing.ini")
-		cf, err := os.Open(iniFile)
-		if err == nil {
-			infoln("Migrating syncthing.ini to config.xml")
-			iniCfg := ini.Parse(cf)
-			cf.Close()
-			Rename(iniFile, filepath.Join(confDir, "migrated_syncthing.ini"))
-
-			cfg, _ = readConfigXML(nil)
-			cfg.Repositories = []RepositoryConfiguration{
-				{Directory: iniCfg.Get("repository", "dir")},
-			}
-			readConfigINI(iniCfg.OptionMap("settings"), &cfg.Options)
-			for name, addrs := range iniCfg.OptionMap("nodes") {
-				n := NodeConfiguration{
-					NodeID:    name,
-					Addresses: strings.Fields(addrs),
-				}
-				cfg.Repositories[0].Nodes = append(cfg.Repositories[0].Nodes, n)
-			}
-
-			saveConfig()
-		}
 	}
 
 	if len(cfg.Repositories) == 0 {
@@ -153,14 +129,20 @@ func main() {
 			{
 				ID:        "default",
 				Directory: filepath.Join(getHomeDir(), "Sync"),
-				Nodes: []NodeConfiguration{
-					{NodeID: myID, Addresses: []string{"dynamic"}},
-				},
+				Nodes:     []NodeConfiguration{{NodeID: myID}},
 			},
+		}
+		cfg.Nodes = []NodeConfiguration{
+			{NodeID: myID, Addresses: []string{"dynamic"}},
 		}
 
 		saveConfig()
 		infof("Edit %s to taste or use the GUI\n", cfgFile)
+	}
+
+	if reset {
+		resetRepositories()
+		os.Exit(0)
 	}
 
 	if profiler := os.Getenv("STPROFILER"); len(profiler) > 0 {
@@ -247,17 +229,38 @@ func main() {
 	disc := discovery()
 	go listenConnect(myID, disc, m, tlsCfg, connOpts)
 
-	// Routine to pull blocks from other nodes to synchronize the local
-	// repository. Does not run when we are in read only (publish only) mode.
-	if cfg.Options.ReadOnly {
-		okln("Ready to synchronize (read only; no external updates accepted)")
-		m.StartRO()
-	} else {
-		okln("Ready to synchronize (read-write)")
-		m.StartRW(cfg.Options.ParallelRequests)
+	for _, repo := range cfg.Repositories {
+		// Routine to pull blocks from other nodes to synchronize the local
+		// repository. Does not run when we are in read only (publish only) mode.
+		if repo.ReadOnly {
+			okf("Ready to synchronize %s (read only; no external updates accepted)", repo.ID)
+			m.StartRepoRO(repo.ID)
+		} else {
+			okf("Ready to synchronize %s (read-write)", repo.ID)
+			m.StartRepoRW(repo.ID, cfg.Options.ParallelRequests)
+		}
 	}
 
 	select {}
+}
+
+func resetRepositories() {
+	suffix := fmt.Sprintf(".syncthing-reset-%d", time.Now().UnixNano())
+	for _, repo := range cfg.Repositories {
+		if _, err := os.Stat(repo.Directory); err == nil {
+			infof("Reset: Moving %s -> %s", repo.Directory, repo.Directory+suffix)
+			os.Rename(repo.Directory, repo.Directory+suffix)
+		}
+	}
+
+	pat := filepath.Join(confDir, "*.idx.gz")
+	idxs, err := filepath.Glob(pat)
+	if err == nil {
+		for _, idx := range idxs {
+			infof("Reset: Removing %s", idx)
+			os.Remove(idx)
+		}
+	}
 }
 
 func restart() {
@@ -363,13 +366,15 @@ func listenConnect(myID string, disc *discover.Discoverer, m *Model, tlsCfg *tls
 	go func() {
 		for {
 		nextNode:
-			for _, nodeCfg := range cfg.Repositories[0].Nodes {
+			for _, nodeCfg := range cfg.Nodes {
 				if nodeCfg.NodeID == myID {
 					continue
 				}
 				if m.ConnectedTo(nodeCfg.NodeID) {
 					continue
 				}
+
+				var addrs []string
 				for _, addr := range nodeCfg.Addresses {
 					if addr == "dynamic" {
 						if disc != nil {
@@ -377,10 +382,14 @@ func listenConnect(myID string, disc *discover.Discoverer, m *Model, tlsCfg *tls
 							if len(t) == 0 {
 								continue
 							}
-							addr = t[0] //XXX: Handle all of them
+							addrs = append(addrs, t...)
 						}
+					} else {
+						addrs = append(addrs, addr)
 					}
+				}
 
+				for _, addr := range addrs {
 					if debugNet {
 						dlog.Println("dial", nodeCfg.NodeID, addr)
 					}
