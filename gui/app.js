@@ -228,11 +228,15 @@ syncthing.controller('SyncthingCtrl', function ($scope, $http) {
         return nodeCfg.NodeID.substr(0, 6);
     };
 
+    $scope.editSettings = function () {
+        $('#settings').modal({backdrop: 'static', keyboard: true});
+    }
+
     $scope.saveSettings = function () {
         $scope.configInSync = false;
         $scope.config.Options.ListenAddress = $scope.config.Options.ListenStr.split(',').map(function (x) { return x.trim(); });
         $http.post('/rest/config', JSON.stringify($scope.config), {headers: {'Content-Type': 'application/json'}});
-        $('#settingsTable').collapse('hide');
+        $('#settings').modal("hide");
     };
 
     $scope.restart = function () {

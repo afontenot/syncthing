@@ -86,6 +86,9 @@
   <div class="navbar navbar-top navbar-default">
     <div class="container">
       <a class="navbar-brand"><img class="logo" src="st-logo-128.png" width="32" height="32"> Syncthing</a>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#settings" ng-click="editSettings()"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+      </ul>
     </div>
   </div>
 
@@ -112,7 +115,7 @@
 
     <div class="row">
 
-    <!-- Repository list (top left) -->
+      <!-- Repository list (top left) -->
 
       <div class="col-md-6">
         <div class="panel panel-default">
@@ -168,36 +171,6 @@
           <div class="panel-heading"><h3 class="panel-title">Nodes</h3></div>
           <div class="panel-body">
 
-            <h5>This Node</h5>
-            <ul class="list-unstyled" ng-repeat="nodeCfg in thisNode()">
-              <li>
-                <span class="text-monospace">{{nodeName(nodeCfg)}}</span>&emsp;
-                <a href="" ng-click="editNode(nodeCfg)"><span class="glyphicon glyphicon-pencil"></span></a>
-                <ul class="list-no-bullet">
-                  <li>
-                    <div class="li-column">
-                      <span class="text-muted glyphicon glyphicon-link"></span>
-                      <span class="data">(this node)</span>
-                    </div>
-                    <div class="li-column">
-                      <span class="text-muted glyphicon glyphicon-tag"></span>
-                      <span class="data">{{version}}</span>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="li-column">
-                      <span class="text-muted glyphicon glyphicon-cloud-download"></span>
-                      <span class="data">{{inbps | metric}}bps</span>
-                    </div>
-                    <div class="li-column">
-                      <span class="text-muted glyphicon glyphicon-cloud-upload"></span>
-                      <span class="data">{{outbps | metric}}bps</span>
-                    </div>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-
             <h5>Peer Nodes</h5>
             <ul class="list-unstyled" ng-repeat="nodeCfg in otherNodes()">
               <li>
@@ -228,6 +201,36 @@
                 </ul>
               </li>
             </ul>
+
+            <h5>This Node</h5>
+            <ul class="list-unstyled" ng-repeat="nodeCfg in thisNode()">
+              <li>
+                <span class="text-monospace">{{nodeName(nodeCfg)}}</span>&emsp;
+                <a href="" ng-click="editNode(nodeCfg)"><span class="glyphicon glyphicon-pencil"></span></a>
+                <ul class="list-no-bullet">
+                  <li>
+                    <div class="li-column">
+                      <span class="text-muted glyphicon glyphicon-th"></span>
+                      <span class="data">{{system.sys | binary}}B RAM</span>
+                    </div>
+                    <div class="li-column">
+                      <span class="text-muted glyphicon glyphicon-tasks"></span>
+                      <span class="data">{{system.cpuPercent | alwaysNumber | natural:1}}% CPU</span>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="li-column">
+                      <span class="text-muted glyphicon glyphicon-cloud-download"></span>
+                      <span class="data">{{inbps | metric}}bps</span>
+                    </div>
+                    <div class="li-column">
+                      <span class="text-muted glyphicon glyphicon-cloud-upload"></span>
+                      <span class="data">{{outbps | metric}}bps</span>
+                    </div>
+                  </li>
+                </ul>
+              </li>
+            </ul>
           </div>
           <div class="panel-footer">
             <button type="button" class="pull-right btn btn-sm btn-default" ng-click="addNode()"><span class="glyphicon glyphicon-plus"></span> Add Node</button>
@@ -235,73 +238,8 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Second regular row -->
-
-    <div class="row">
-
-      <!-- System information (bottom left) -->
-
-      <div class="col-md-6">
-        <div class="panel panel-default">
-          <div class="panel-heading"><h3 class="panel-title"><a href="" data-toggle="collapse" data-target="#system" class="collapsed">
-            System <span class="collapsed-visible"><span class="caret"></span></span>
-          </a></h3></div>
-          <div id="system" class="panel-collapse collapse">
-            <div class="panel-body">
-              <p>{{system.sys | binary}}B RAM allocated, {{system.alloc | binary}}B in use</p>
-              <p>{{system.cpuPercent | alwaysNumber | natural:1}}% CPU, {{system.goroutines | alwaysNumber}} goroutines</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Settings (bottom right) -->
-
-      <div class="col-md-6">
-        <div class="panel panel-default">
-          <div class="panel-heading"><h3 class="panel-title"><a href="" data-toggle="collapse" data-target="#settingsTable" class="collapsed">
-            Settings <span class="collapsed-visible"><span class="caret"></span></span>
-          </a></h3></div>
-          <div id="settingsTable" class="panel-collapse collapse">
-            <div class="panel-body">
-              <form role="form">
-
-                <div class="form-group" ng-repeat="setting in settings">
-                  <div ng-if="setting.type == 'text' || setting.type == 'number'">
-                    <label for="{{setting.id}}">{{setting.descr}}</label>
-                    <input id="{{setting.id}}" class="form-control" type="{{setting.type}}" ng-model="config.Options[setting.id]"></input>
-                  </div>
-                  <div class="checkbox" ng-if="setting.type == 'bool'">
-                    <label>
-                      {{setting.descr}} <input id="{{setting.id}}" type="checkbox" ng-model="config.Options[setting.id]"></input>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="form-group" ng-repeat="setting in guiSettings">
-                  <div ng-if="setting.type == 'text' || setting.type == 'number' || setting.type == 'password'">
-                    <label for="{{setting.id}}">{{setting.descr}}</label>
-                    <input id="{{setting.id}}" class="form-control" type="{{setting.type}}" ng-model="config.GUI[setting.id]"></input>
-                  </div>
-                  <div class="checkbox" ng-if="setting.type == 'bool'">
-                    <label>
-                      {{setting.descr}} <input id="{{setting.id}}" type="checkbox" ng-model="config.GUI[setting.id]"></input>
-                    </label>
-                  </div>
-                </div>
-
-              </form>
-            </div>
-            <div class="panel-footer">
-              <button type="button" class="btn btn-sm btn-default pull-right" ng-click="saveSettings()"><span class="glyphicon glyphicon-save"></span> Save</button>
-              <div class="clearfix"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </div> <!-- /row -->
 
   </div> <!-- /container -->
 
@@ -421,6 +359,51 @@
       </div>
     </div>
   </div>
+
+  <div id="settings" class="modal fade">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title"> Settings</h4>
+        </div>
+        <div class="modal-body">
+          <form role="form">
+
+            <div class="form-group" ng-repeat="setting in settings">
+              <div ng-if="setting.type == 'text' || setting.type == 'number'">
+                <label for="{{setting.id}}">{{setting.descr}}</label>
+                <input id="{{setting.id}}" class="form-control" type="{{setting.type}}" ng-model="config.Options[setting.id]"></input>
+              </div>
+              <div class="checkbox" ng-if="setting.type == 'bool'">
+                <label>
+                  {{setting.descr}} <input id="{{setting.id}}" type="checkbox" ng-model="config.Options[setting.id]"></input>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group" ng-repeat="setting in guiSettings">
+              <div ng-if="setting.type == 'text' || setting.type == 'number' || setting.type == 'password'">
+                <label for="{{setting.id}}">{{setting.descr}}</label>
+                <input id="{{setting.id}}" class="form-control" type="{{setting.type}}" ng-model="config.GUI[setting.id]"></input>
+              </div>
+              <div class="checkbox" ng-if="setting.type == 'bool'">
+                <label>
+                  {{setting.descr}} <input id="{{setting.id}}" type="checkbox" ng-model="config.GUI[setting.id]"></input>
+                </label>
+              </div>
+            </div>
+
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-default pull-right" ng-click="saveSettings()"><span class="glyphicon glyphicon-save"></span> Save</button>
+          <div class="clearfix"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <script src="angular.min.js"></script>
   <script src="jquery-2.0.3.min.js"></script>
