@@ -267,6 +267,7 @@
           <div id="settingsTable" class="panel-collapse collapse">
             <div class="panel-body">
               <form role="form">
+
                 <div class="form-group" ng-repeat="setting in settings">
                   <div ng-if="setting.type == 'text' || setting.type == 'number'">
                     <label for="{{setting.id}}">{{setting.descr}}</label>
@@ -278,6 +279,19 @@
                     </label>
                   </div>
                 </div>
+
+                <div class="form-group" ng-repeat="setting in guiSettings">
+                  <div ng-if="setting.type == 'text' || setting.type == 'number' || setting.type == 'password'">
+                    <label for="{{setting.id}}">{{setting.descr}}</label>
+                    <input id="{{setting.id}}" class="form-control" type="{{setting.type}}" ng-model="config.GUI[setting.id]"></input>
+                  </div>
+                  <div class="checkbox" ng-if="setting.type == 'bool'">
+                    <label>
+                      {{setting.descr}} <input id="{{setting.id}}" type="checkbox" ng-model="config.GUI[setting.id]"></input>
+                    </label>
+                  </div>
+                </div>
+
               </form>
             </div>
             <div class="panel-footer">

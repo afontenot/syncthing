@@ -20,7 +20,6 @@ syncthing.controller('SyncthingCtrl', function ($scope, $http) {
     // Strings before bools look better
     $scope.settings = [
         {id: 'ListenStr', descr: 'Sync Protocol Listen Addresses', type: 'text', restart: true},
-        {id: 'GUIAddress', descr: 'GUI Listen Address', type: 'text', restart: true},
         {id: 'MaxSendKbps', descr: 'Outgoing Rate Limit (KBps)', type: 'number', restart: true},
         {id: 'RescanIntervalS', descr: 'Rescan Interval (s)', type: 'number', restart: true},
         {id: 'ReconnectIntervalS', descr: 'Reconnect Interval (s)', type: 'number', restart: true},
@@ -30,6 +29,12 @@ syncthing.controller('SyncthingCtrl', function ($scope, $http) {
         {id: 'GlobalAnnEnabled', descr: 'Global Announce', type: 'bool', restart: true},
         {id: 'LocalAnnEnabled', descr: 'Local Announce', type: 'bool', restart: true},
         {id: 'StartBrowser', descr: 'Start Browser', type: 'bool'},
+    ];
+
+    $scope.guiSettings = [
+        {id: 'Address', descr: 'GUI Listen Addresses', type: 'text', restart: true},
+        {id: 'User', descr: 'GUI Authentication User', type: 'text', restart: true},
+        {id: 'Password', descr: 'GUI Authentication Password', type: 'password', restart: true},
     ];
 
     function modelGetSucceeded() {
