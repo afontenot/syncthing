@@ -18,12 +18,12 @@ build() {
 	${godep} go build -ldflags "-w -X main.Version $version" ./cmd/stcli
 }
 
-prepare() {
-	go run cmd/assets/assets.go gui > auto/gui.files.go
+assets() {
+	godep go run cmd/assets/assets.go gui > auto/gui.files.go
 }
 
 test() {
-	go test -cpu=1,2,4 ./...
+	godep go test -cpu=1,2,4 ./...
 }
 
 sign() {
@@ -56,6 +56,10 @@ zipDist() {
 	rm -rf "$name"
 }
 
+deps() {
+	godep save ./cmd/syncthing ./cmd/assets ./cmd/stcli ./discover/cmd/discosrv
+}
+
 case "$1" in
 	"")
 		build
@@ -71,8 +75,8 @@ case "$1" in
 
 	tar)
 		rm -f *.tar.gz *.zip
-		prepare
 		test || exit 1
+		assets
 		build
 
 		eval $(go env)
@@ -83,8 +87,8 @@ case "$1" in
 
 	all)
 		rm -f *.tar.gz *.zip
-		prepare
 		test || exit 1
+		assets
 
 		for os in darwin-amd64 linux-386 linux-amd64 freebsd-amd64 windows-amd64 ; do
 			export GOOS=${os%-*}
@@ -124,6 +128,14 @@ case "$1" in
 		for f in *.tar.gz *.zip *.asc ; do
 			relup calmh/syncthing "$tag" "$f"
 		done
+		;;
+
+	deps)
+		deps
+		;;
+
+	assets)
+		assets
 		;;
 
 	*)
