@@ -124,7 +124,7 @@
             <ul class="list-unstyled">
               <li ng-repeat="repo in repos">
                 <span class="text-monospace">{{repo.Directory}}</span> ({{repo.ID}})
-                <a href="" ng-click="editNode(nodeCfg)" class="text-info"><span class="glyphicon glyphicon-pencil"></span></a>
+                <a href="" ng-click="editRepo(repo)" class="text-info"><span class="glyphicon glyphicon-pencil"></span></a>
                 <ul class="list-no-bullet">
                   <li>
                     <div class="progress" style="display: inline-block; width: 100%">
@@ -334,31 +334,39 @@
         <div class="modal-body">
           <form role="form">
             <div class="form-group">
-              <label for="repoPath">Repository Path</label>
-              <input placeholder="~/Documents" ng-disabled="editingExisting" id="repoPath" class="form-control" type="text" ng-model="currentRepo.Path"></input>
-              <p class="help-block">Path to the repository on the local computer. Will be created if it does not exist.</p>
-            </div>
-            <div class="form-group">
               <label for="repoID">Repository ID</label>
-              <input placeholder="documents" id="repoID" class="form-control" type="text" ng-model="currentRepo.ID"></input>
+              <input placeholder="documents" ng-disabled="editingExisting" id="repoID" class="form-control" type="text" ng-model="currentRepo.ID"></input>
               <p class="help-block">Short, unique identifier for the repository. Must be the same on all cluster nodes.</p>
             </div>
             <div class="form-group">
+              <label for="repoPath">Repository Path</label>
+              <input placeholder="~/Documents" id="repoPath" class="form-control" type="text" ng-model="currentRepo.Directory"></input>
+              <p class="help-block">Path to the repository on the local computer. Will be created if it does not exist.</p>
+            </div>
+            <div class="form-group">
               <label for="nodes">Nodes</label>
+              <div class="checkbox" ng-repeat="node in nodes">
+               <label>
+                <input type="checkbox" ng-model="currentRepo.selectedNodes[node.NodeID]"> {{nodeName(node)}}
+              </label>
+              </div>
+              <p class="help-block">Select the nodes to share this repository with.</p>
             </div>
           </form>
           <div ng-show="!editingExisting">
-            When adding a new repository, keep in mind that the Repository ID is used to repositories together between nodes. They are case sensitive and must match exactly between all nodes.
+            When adding a new repository, keep in mind that the Repository ID is used to tie repositories together between nodes. They are case sensitive and must match exactly between all nodes.
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" ng-click="saveNode()">Save</button>
+          <button type="button" class="btn btn-primary" ng-click="saveRepo()">Save</button>
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button ng-if="editingExisting" type="button" class="btn btn-danger pull-left" ng-click="deleteNode()">Delete</button>
+          <button ng-if="editingExisting" type="button" class="btn btn-danger pull-left" ng-click="deleteRepo()">Delete</button>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Settings modal -->
 
   <div id="settings" class="modal fade">
     <div class="modal-dialog modal-lg">

@@ -351,6 +351,52 @@ syncthing.controller('SyncthingCtrl', function ($scope, $http) {
         return str;
     };
 
+    $scope.editRepo = function (nodeCfg) {
+        $scope.currentRepo = $.extend({selectedNodes: {}}, nodeCfg);
+        for (var i = 0; i < $scope.currentRepo.Nodes.length; i++) {
+            var node = $scope.currentRepo.Nodes[i];
+            $scope.currentRepo.selectedNodes[node.NodeID] = true;
+        }
+        $scope.editingExisting = true;
+        $('#editRepo').modal({backdrop: 'static', keyboard: true});
+    };
+
+    $scope.addRepo = function () {
+        $scope.currentRepo = {selectedNodes: {}};
+        $scope.editingExisting = false;
+        $('#editRepo').modal({backdrop: 'static', keyboard: true});
+    };
+
+    $scope.saveRepo = function () {
+        var repoCfg, done, i;
+
+        $scope.configInSync = false;
+        $('#editRepo').modal('hide');
+        repoCfg = $scope.currentRepo;
+        repoCfg.Nodes = [];
+        for (var nodeID in repoCfg.selectedNodes) {
+            repoCfg.Nodes.push({NodeID: nodeID});
+        }
+        delete repoCfg.selectedNodes;
+
+        done = false;
+        for (i = 0; i < $scope.repos.length; i++) {
+            if ($scope.repos[i].ID === repoCfg.ID) {
+                $scope.repos[i] = repoCfg;
+                done = true;
+                break;
+            }
+        }
+
+        if (!done) {
+            $scope.repos.push(repoCfg);
+        }
+
+        $scope.config.Repositories = $scope.repos;
+
+        $http.post('/rest/config', JSON.stringify($scope.config), {headers: {'Content-Type': 'application/json'}});
+    };
+
     $scope.refresh();
     setInterval($scope.refresh, 10000);
 });
